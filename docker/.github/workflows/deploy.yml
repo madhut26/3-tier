@@ -1,0 +1,66 @@
+name: Build and Deploy to ECR
+
+on:
+  push:
+    branches:
+      - main
+
+env:
+  AWS_REGION: us-east-1                  
+  ECR_REPO: my-app-repo                  
+  IMAGE_TAG: latest                      
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout source code
+        uses: actions/checkout@v3
+
+      # --- Frontend Build ---
+      - name: Build Frontend
+        working-directory: ./frontend
+        run: |
+          npm install
+          npm run build
+
+      # --- Backend Build ---
+      - name: Build Backend EAR
+        working-directory: ./backend
+        run: |
+          ./gradlew clean build ear
+
+      # --- Copy EAR for Docker ---
+      - name: Prepare EAR for Docker
+        run: |
+          cp backend/build/libs/*.ear backend/app.ear
+
+      # --- Configure AWS Credentials ---
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      # --- Create ECR Repo If Not Exists ---
+      - name: Create ECR Repo (if missing)
+        run: |
+          aws ecr describe-repositories --repository-names $ECR_REPO || \
+          aws ecr create-repository --repository-name $ECR_REPO
+
+      # --- Authenticate Docker to ECR ---
+      - name: Log in to Amazon ECR
+        uses: aws-actions/amazon-ecr-login@v2
+
+      # --- Build Docker Image ---
+      - name: Build Docker image
+        run: |
+          docker build -t $ECR_REPO:$IMAGE_TAG .
+
+      # --- Tag & Push Docker Image to ECR ---
+      - name: Tag and Push to ECR
+        run: |
+          docker tag $ECR_REPO:$IMAGE_TAG ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com/$ECR_REPO:$IMAGE_TAG
+          docker push ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com/$ECR_REPO:$IMAGE_TAG
