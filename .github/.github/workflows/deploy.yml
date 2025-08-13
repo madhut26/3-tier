@@ -7,7 +7,7 @@ on:
 
 env:
   AWS_REGION: us-east-1  # or your preferred region
-  
+
 jobs:
   build-and-push:
     runs-on: ubuntu-latest
@@ -39,14 +39,15 @@ jobs:
 
       # Build and push frontend image
       - name: Build frontend Docker image
-        run: |
-          docker build -t frontend-repo:latest ./frontend
-          docker tag frontend-repo:latest ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com/frontend-repo:latest
-          docker push ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com/frontend-repo:latest
+  run: |
+    docker build -t frontend-repo:latest ./docker/frontend
+    docker tag frontend-repo:latest ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com/frontend-repo:latest
+    docker push ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com/frontend-repo:latest
+
 
       # Build and push backend image
-      - name: Build backend Docker image
-        run: |
-          docker build -t backend-repo:latest ./backend
-          docker tag backend-repo:latest ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com/backend-repo:latest
-          docker push ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com/backend-repo:latest
+     - name: Build backend Docker image
+  run: |
+    docker build -t backend-repo:latest ./docker/backend
+    docker tag backend-repo:latest ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com/backend-repo:latest
+    docker push ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com/backend-repo:latest
