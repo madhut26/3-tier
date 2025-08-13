@@ -11,6 +11,7 @@ env:
 jobs:
   build-and-push:
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
@@ -22,13 +23,11 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ env.AWS_REGION }}
 
-      # Create frontend repo if not exists
       - name: Create ECR repo for frontend
         run: |
           aws ecr describe-repositories --repository-names frontend-repo || \
           aws ecr create-repository --repository-name frontend-repo
 
-      # Create backend repo if not exists
       - name: Create ECR repo for backend
         run: |
           aws ecr describe-repositories --repository-names backend-repo || \
@@ -37,17 +36,14 @@ jobs:
       - name: Login to ECR
         uses: aws-actions/amazon-ecr-login@v2
 
-      # Build and push frontend image
-      - name: Build frontend Docker image
-  run: |
-    docker build -t frontend-repo:latest ./docker/frontend
-    docker tag frontend-repo:latest ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com/frontend-repo:latest
-    docker push ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com/frontend-repo:latest
+      - name: Build and push frontend Docker image
+        run: |
+          docker build -t frontend-repo:latest ./docker/frontend
+          docker tag frontend-repo:latest ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com/frontend-repo:latest
+          docker push ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com/frontend-repo:latest
 
-
-      # Build and push backend image
-     - name: Build backend Docker image
-  run: |
-    docker build -t backend-repo:latest ./docker/backend
-    docker tag backend-repo:latest ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com/backend-repo:latest
-    docker push ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com/backend-repo:latest
+      - name: Build and push backend Docker image
+        run: |
+          docker build -t backend-repo:latest ./docker/backend
+          docker tag backend-repo:latest ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com/backend-repo:latest
+          docker push ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com/backend-repo:latest
