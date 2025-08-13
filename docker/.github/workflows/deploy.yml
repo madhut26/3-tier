@@ -1,3 +1,13 @@
+name: Build and Push to ECR
+
+on:
+  push:
+    branches:
+      - main  # or your actual branch name
+
+env:
+  AWS_REGION: us-east-1  # or your preferred region
+  
 jobs:
   build-and-push:
     runs-on: ubuntu-latest
