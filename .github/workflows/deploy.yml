@@ -38,9 +38,10 @@ jobs:
 
       - name: Build and push frontend Docker image
         run: |
-          docker build -t frontend-repo:latest ./docker/frontend
-          docker tag frontend-repo:latest ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com/frontend-repo:latest
-          docker push ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com/frontend-repo:latest
+         docker build -t frontend-repo:latest -f docker/frontend/Dockerfile docker/frontend
+         docker tag frontend-repo:latest ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com/frontend-repo:latest
+         docker push ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com/frontend-repo:latest
+
 
       - name: Build and push backend Docker image
         run: |
