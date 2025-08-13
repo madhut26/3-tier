@@ -38,15 +38,13 @@ jobs:
         uses: aws-actions/amazon-ecr-login@v2
 
       # Build and push frontend image
-      - name: Build frontend Docker image
+      - name: Build and push frontend Docker image
   run: |
     docker build -t frontend-repo:latest ./docker/frontend
     docker tag frontend-repo:latest ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com/frontend-repo:latest
     docker push ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com/frontend-repo:latest
 
-
-      # Build and push backend image
-     - name: Build backend Docker image
+- name: Build and push backend Docker image
   run: |
     docker build -t backend-repo:latest ./docker/backend
     docker tag backend-repo:latest ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com/backend-repo:latest
